@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 import styled from "@emotion/styled";
 import type { Theme } from "../constants/themes";
 import { TRANSCRIPT_AREA_HEIGHT } from "../constants/constants";
@@ -26,29 +26,29 @@ function resolveAreaHeight(areaHeight: number | string): string {
 	return typeof areaHeight === 'number' ? `${areaHeight}px` : areaHeight;
 }
 
-const TranscriptContainer = styled.div<{ areaHeight: number | string }>`
+const FADE_MASK = `linear-gradient(to bottom, transparent 0%, black ${FADE_HEIGHT}px, black 100%)`;
+
+const TranscriptContainer = styled.div<{ areaHeight: number | string; isScrolled: boolean }>`
 	position: relative;
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-end;
 	gap: 10px;
 	padding: 0 0 12px 0;
-	height: ${(props) => resolveAreaHeight(props.areaHeight)};
+	/* max-height (not height): the box only grows as tall as its content needs,
+	 * up to this ceiling -- a fixed height would always claim the full amount
+	 * even with 1 short message, which (since this whole widget is anchored by
+	 * its BOTTOM edge via position:fixed and grows upward with no viewport
+	 * clipping) can push content above the top of the screen entirely. */
+	max-height: ${(props) => resolveAreaHeight(props.areaHeight)};
 	overflow-y: auto;
 	overflow-x: hidden;
 
-	mask-image: linear-gradient(
-		to bottom,
-		transparent 0%,
-		black ${FADE_HEIGHT}px,
-		black 100%
-	);
-	-webkit-mask-image: linear-gradient(
-		to bottom,
-		transparent 0%,
-		black ${FADE_HEIGHT}px,
-		black 100%
-	);
+	/* Only fade the top edge once there's actually something scrolled out of
+	 * view above -- otherwise the oldest message looks permanently dimmed
+	 * even when it's the only one and nothing is hidden. */
+	mask-image: ${(props) => (props.isScrolled ? FADE_MASK : 'none')};
+	-webkit-mask-image: ${(props) => (props.isScrolled ? FADE_MASK : 'none')};
 
 	scrollbar-width: none;
 	-ms-overflow-style: none;
@@ -124,6 +124,7 @@ export function TranscriptDisplay({
 	agentName,
 }: TranscriptDisplayProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
+	const [isScrolled, setIsScrolled] = useState(false);
 
 	const visibleMessages = messages.slice(-maxMessages);
 
@@ -131,6 +132,17 @@ export function TranscriptDisplay({
 		if (containerRef.current) {
 			containerRef.current.scrollTop = containerRef.current.scrollHeight;
 		}
+	}, [messages]);
+
+	useEffect(() => {
+		const el = containerRef.current;
+		if (!el) return;
+		const updateScrolled = () => setIsScrolled(el.scrollTop > 0);
+		// Content height can change (new message, container resize) without a
+		// 'scroll' event firing, so check on every message update too.
+		updateScrolled();
+		el.addEventListener('scroll', updateScrolled);
+		return () => el.removeEventListener('scroll', updateScrolled);
 	}, [messages]);
 
 	if (visibleMessages.length === 0) {
@@ -141,6 +153,7 @@ export function TranscriptDisplay({
 		<TranscriptContainer
 			ref={containerRef}
 			areaHeight={areaHeight}
+			isScrolled={isScrolled}
 			className="webrtc_transcript_container"
 		>
 			{visibleMessages.map((message, index) => {
