@@ -355,6 +355,8 @@ const VoiceBotWidget = forwardRef<IWidgetInstance>((_, ref) => {
 						agentName={widgetConfig.label}
 						isWaitingForTranscript={!!isWaitingForTranscript}
 						connectingLabel={`Connecting to ${widgetConfig.label || "Cognigy Voice"}...`}
+						maxMessages={widgetConfig.transcription?.maxMessages}
+						areaHeight={widgetConfig.transcription?.areaHeight}
 					/>
 					<div className={`webrtc_widget_container ${hasCustomBackground && showTranscriptArea ? 'has-custom-bg' : ''}`} style={!hasCustomBackground || !showTranscriptArea ? basePanelStyle : undefined}>
 						<div className={`webrtc_widget_content_container webrtc_widget_content_container_${isCalling ? 'calling' : 'idle'}`}>

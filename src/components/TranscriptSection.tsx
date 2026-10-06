@@ -12,6 +12,8 @@ interface TranscriptSectionProps {
 	agentName?: string;
 	isWaitingForTranscript: boolean;
 	connectingLabel: string;
+	maxMessages?: number;
+	areaHeight?: number;
 }
 
 const TranscriptSection: FC<TranscriptSectionProps> = ({
@@ -24,6 +26,8 @@ const TranscriptSection: FC<TranscriptSectionProps> = ({
 	agentName,
 	isWaitingForTranscript,
 	connectingLabel,
+	maxMessages,
+	areaHeight,
 }) => {
 	if (!showTranscriptArea) return null;
 
@@ -38,6 +42,8 @@ const TranscriptSection: FC<TranscriptSectionProps> = ({
 					messages={transcriptMessages}
 					theme={theme}
 					agentName={agentName}
+					maxMessages={maxMessages}
+					areaHeight={areaHeight}
 				/>
 				) : (
 					<div className="webrtc_widget_connecting_message">

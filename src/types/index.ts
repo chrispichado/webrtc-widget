@@ -15,6 +15,10 @@ interface ITranscriptionConfig {
 	enabled?: boolean;
 	backgroundMode?: 'transparent' | 'custom';
 	backgroundColor?: string;
+	/** How many past messages to keep rendered. Defaults to 3 (upstream Cognigy default). */
+	maxMessages?: number;
+	/** Height in px of the scrollable transcript area. Defaults to 220 (upstream Cognigy default). */
+	areaHeight?: number;
 }
 
 interface IDemoPageBackground {

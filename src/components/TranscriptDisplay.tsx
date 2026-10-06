@@ -14,19 +14,20 @@ interface TranscriptDisplayProps {
 	messages: TranscriptMessage[];
 	theme: Theme;
 	maxMessages?: number;
+	areaHeight?: number;
 	agentName?: string;
 }
 
 const FADE_HEIGHT = 40;
 
-const TranscriptContainer = styled.div`
+const TranscriptContainer = styled.div<{ areaHeight: number }>`
 	position: relative;
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-end;
 	gap: 10px;
 	padding: 0 0 12px 0;
-	height: ${TRANSCRIPT_AREA_HEIGHT}px;
+	height: ${(props) => props.areaHeight}px;
 	overflow-y: auto;
 	overflow-x: hidden;
 
@@ -113,6 +114,7 @@ export function TranscriptDisplay({
 	messages,
 	theme,
 	maxMessages = 3,
+	areaHeight = TRANSCRIPT_AREA_HEIGHT,
 	agentName,
 }: TranscriptDisplayProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -132,6 +134,7 @@ export function TranscriptDisplay({
 	return (
 		<TranscriptContainer
 			ref={containerRef}
+			areaHeight={areaHeight}
 			className="webrtc_transcript_container"
 		>
 			{visibleMessages.map((message, index) => {
