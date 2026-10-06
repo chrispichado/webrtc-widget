@@ -13,7 +13,7 @@ interface TranscriptSectionProps {
 	isWaitingForTranscript: boolean;
 	connectingLabel: string;
 	maxMessages?: number;
-	areaHeight?: number;
+	areaHeight?: number | string;
 }
 
 const TranscriptSection: FC<TranscriptSectionProps> = ({

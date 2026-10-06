@@ -14,20 +14,26 @@ interface TranscriptDisplayProps {
 	messages: TranscriptMessage[];
 	theme: Theme;
 	maxMessages?: number;
-	areaHeight?: number;
+	/** A bare number is treated as px (legacy behavior); a string is used as-is
+	 *  (e.g. "70vh", "calc(100vh - 220px)") so this can track the viewport. */
+	areaHeight?: number | string;
 	agentName?: string;
 }
 
 const FADE_HEIGHT = 40;
 
-const TranscriptContainer = styled.div<{ areaHeight: number }>`
+function resolveAreaHeight(areaHeight: number | string): string {
+	return typeof areaHeight === 'number' ? `${areaHeight}px` : areaHeight;
+}
+
+const TranscriptContainer = styled.div<{ areaHeight: number | string }>`
 	position: relative;
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-end;
 	gap: 10px;
 	padding: 0 0 12px 0;
-	height: ${(props) => props.areaHeight}px;
+	height: ${(props) => resolveAreaHeight(props.areaHeight)};
 	overflow-y: auto;
 	overflow-x: hidden;
 
